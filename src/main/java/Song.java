@@ -11,4 +11,8 @@ public class Song {
     private String title;
     private int duration;
     private Album album;
+
+    public String getFormattedDuration() {
+        return String.format("%02d:%02d", duration / 60, duration % 60);
+    }
 }
