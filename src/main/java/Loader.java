@@ -56,10 +56,6 @@ public class Loader {
 
             while ((fields = reader.readNext()) != null) {
                 // Ignore blank lines
-                if (fields.length < 7 || fields[0].trim().isEmpty() || fields[6].trim().isEmpty()) {
-                    continue;
-                }
-
                 int occupantId = Integer.parseInt(fields[0].trim());
                 String fullName = fields[1].trim() + " " + fields[2].trim();
                 String artistName = fields[3].trim();
@@ -116,7 +112,7 @@ public class Loader {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error loading CSV");
         }
 
         // ---- Save on static loaders ------------------

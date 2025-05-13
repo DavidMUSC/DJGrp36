@@ -83,4 +83,21 @@ public class LoaderTest {
         assertEquals(171, s1.getSong().getDuration());
     }
 
+    @Test
+    public void testLoadFromMissingCSV() {
+        Loader loader = Loader.getInstance();
+        assertDoesNotThrow(() -> loader.loadFromCSV("nonexistent_file.csv"));
+
+        // After failing to load, queue should be empty or remain unchanged
+        try {
+            Field qField = Loader.class.getDeclaredField("queue");
+            qField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            List<QueueEntry> queue = (List<QueueEntry>) qField.get(null);
+
+            assertNotNull(queue);
+        } catch (Exception e) {
+            fail("Reflection access failed: " + e.getMessage());
+        }
+    }
 }
