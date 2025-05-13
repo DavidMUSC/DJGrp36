@@ -1,9 +1,17 @@
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CsvLoader {
+@Getter
+@NoArgsConstructor
+@Builder
+public class Loader {
 
     public static List<Occupant> loadFromCSV(String filePath) {
         Map<Integer, Occupant> occupants = new HashMap<>();
@@ -19,7 +27,7 @@ public class CsvLoader {
             br.readLine(); // saltar cabecera
 
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(",", -1); // permitir campos vacíos
+                String[] fields = line.split(",", -1);
 
                 int occupantId = Integer.parseInt(fields[0].trim());
                 String fullName = fields[1].trim() + " " + fields[2].trim();
@@ -30,40 +38,39 @@ public class CsvLoader {
 
                 int duration = parseDuration(durationStr);
 
-                // Artist (reutilizar si ya existe)
-                Artist artist = artists.computeIfAbsent(artistName, name -> {
-                    Artist a = new Artist();
-                    a.setId(artistIdCounter.getAndIncrement());
-                    a.setName(name);
-                    return a;
-                });
+                // Artist
+                Artist artist = artists.computeIfAbsent(artistName, name ->
+                        Artist.builder()
+                                .id(artistIdCounter.getAndIncrement())
+                                .name(name)
+                                .build()
+                );
 
-                // Album (único por nombre + artista)
+                // Album
                 String albumKey = albumTitle + "::" + artist.getName();
-                Album album = albums.computeIfAbsent(albumKey, key -> {
-                    Album al = new Album();
-                    al.setId(albumIdCounter.getAndIncrement());
-                    al.setTitle(albumTitle);
-                    al.setArtist(artist);
-                    return al;
-                });
+                Album album = albums.computeIfAbsent(albumKey, key ->
+                        Album.builder()
+                                .id(albumIdCounter.getAndIncrement())
+                                .title(albumTitle)
+                                .artist(artist)
+                                .build()
+                );
 
                 // Song
-                Song song = new Song();
-                song.setId(songIdCounter++);
-                song.setTitle(songTitle);
-                song.setDuration(duration);
-                song.setAlbum(album);
+                Song song = Song.builder()
+                        .id(songIdCounter++)
+                        .title(songTitle)
+                        .duration(duration)
+                        .album(album)
+                        .build();
 
                 // Occupant
-                Occupant occupant = occupants.computeIfAbsent(occupantId, id -> {
-                    Occupant o = new Occupant();
-                    o.setId(id);
-                    o.setName(fullName);
-                    return o;
-                });
-
-                occupant.getSongs().add(song);
+                occupants.computeIfAbsent(occupantId, id ->
+                        Occupant.builder()
+                                .id(id)
+                                .name(fullName)
+                                .build()
+                ).getSongs().add(song);
             }
 
         } catch (Exception e) {

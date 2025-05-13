@@ -3,7 +3,8 @@ import lombok.*;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class QueueEntry {
     private Date queuedAt;
     private Date playedAt;
