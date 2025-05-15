@@ -20,7 +20,7 @@ public class VotingService {
      */
     public boolean shouldSkip(Song song) {
         Map<Integer, Vote> votes = votesBySong.get(song.getId());
-        if (votes == null || votes.isEmpty()) {
+        if (votes == null) {
             return false;
         }
         long likes = votes.values().stream().filter(v -> v == Vote.LIKE).count();

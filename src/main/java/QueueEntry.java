@@ -11,6 +11,4 @@ public class QueueEntry {
     private Occupant occupant;
     private Song song;
 
-    //funcion para reproducir la siguiente cancion
-
 }
