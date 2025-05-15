@@ -22,10 +22,7 @@ class LoaderNavigationTest {
         loader = Loader.getInstance();
         loader.loadFromCSV(resource.getFile());
 
-        Field qField = Loader.class.getDeclaredField("queue");
-        qField.setAccessible(true);
-        //noinspection unchecked
-        queue = (List<QueueEntry>) qField.get(null);
+        queue = loader.getQueue();
     }
 
     @Order(1)

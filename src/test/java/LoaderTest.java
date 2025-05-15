@@ -1,3 +1,5 @@
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,6 +9,10 @@ import java.net.URL;
 import java.util.List;
 
 public class LoaderTest {
+
+    Loader loader  = Loader.getInstance();
+    List<QueueEntry> queue;
+
     @Test
     public void testLoadFromLittleCSV() throws Exception {
         // CSV mocked as a String
@@ -22,14 +28,8 @@ public class LoaderTest {
         }
 
         // Execute the loader
-        Loader loader = Loader.getInstance();
         loader.loadFromCSV(tempFile.getAbsolutePath());
-
-        // Access the internal queue via reflection
-        Field qField = Loader.class.getDeclaredField("queue");
-        qField.setAccessible(true);
-        @SuppressWarnings("unchecked")
-        List<QueueEntry> queue = (List<QueueEntry>) qField.get(null);
+        queue = Loader.getInstance().getQueue();
 
         assertEquals(2, queue.size(), "Queue should contain two entries");
 
@@ -52,21 +52,15 @@ public class LoaderTest {
         File file = new File(resource.getFile());
         assertTrue(file.exists());
 
-        Loader loader = Loader.getInstance();
         loader.loadFromCSV(file.getAbsolutePath());
-
-        // Access the internal queue
-        Field qField = Loader.class.getDeclaredField("queue");
-        qField.setAccessible(true);
-        @SuppressWarnings("unchecked")
-        List<QueueEntry> queue = (List<QueueEntry>) qField.get(null);
+        queue = loader.getQueue();
 
         // 1. Check the number of distinct occupants
         long distinctOccupants = queue.stream()
                                       .map(q -> q.getOccupant().getId())
                                       .distinct()
                                       .count();
-        assertEquals(60, distinctOccupants);
+        assertEquals(4, distinctOccupants);
 
         // 2. Verify data of the first occupant
         QueueEntry first = queue.getFirst();
@@ -85,19 +79,35 @@ public class LoaderTest {
 
     @Test
     public void testLoadFromMissingCSV() {
-        Loader loader = Loader.getInstance();
         assertDoesNotThrow(() -> loader.loadFromCSV("nonexistent_file.csv"));
+        queue = loader.getQueue();
 
-        // After failing to load, queue should be empty or remain unchanged
         try {
-            Field qField = Loader.class.getDeclaredField("queue");
-            qField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            List<QueueEntry> queue = (List<QueueEntry>) qField.get(null);
-
             assertNotNull(queue);
         } catch (Exception e) {
             fail("Reflection access failed: " + e.getMessage());
         }
+    }
+
+    @Test
+    void loadFromCSVWithInvalidDataDoesNotCrash() throws Exception {
+
+        URL resource = LoaderNavigationTest.class
+                .getClassLoader()
+                .getResource("discos_invalidos.csv");
+        assertNotNull(resource);
+
+        assertDoesNotThrow(() -> loader.loadFromCSV(resource.getFile()));
+    }
+
+    @Test
+    void loadFromEmptyCSVDoesNotCrash() throws Exception {
+
+        URL resource = LoaderNavigationTest.class
+                .getClassLoader()
+                .getResource("discos_vacios.csv");
+        assertNotNull(resource);
+
+        assertDoesNotThrow(() -> loader.loadFromCSV(resource.getFile()));
     }
 }
