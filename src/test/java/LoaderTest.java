@@ -79,19 +79,11 @@ public class LoaderTest {
 
     @Test
     public void testLoadFromMissingCSV() {
-        assertDoesNotThrow(() -> loader.loadFromCSV("nonexistent_file.csv"));
-        queue = loader.getQueue();
-
-        try {
-            assertNotNull(queue);
-        } catch (Exception e) {
-            fail("Reflection access failed: " + e.getMessage());
-        }
+        assertThrows(RuntimeException.class, () -> loader.loadFromCSV("nonexistent_file.csv"));
     }
 
     @Test
     void loadFromCSVWithInvalidDataDoesNotCrash() throws Exception {
-
         URL resource = LoaderNavigationTest.class
                 .getClassLoader()
                 .getResource("discos_invalidos.csv");

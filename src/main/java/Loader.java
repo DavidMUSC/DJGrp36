@@ -133,7 +133,7 @@ public class Loader {
             }
 
         } catch (Exception e) {
-            System.err.println("Error loading CSV");
+            throw new RuntimeException("Error loading CSV", e);
         }
 
         // ---- Save on static loaders ------------------
