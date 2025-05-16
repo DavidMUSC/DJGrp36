@@ -60,19 +60,51 @@ public class StatsServiceTest {
     public void testGetMostPlayedSongs() {
         List<Song> topSongs = statsService.getMostPlayedSongs(2);
         assertEquals(2, topSongs.size());
-        assertTrue(topSongs.contains(song1)); // song1 appears twice
-        assertTrue(topSongs.contains(song3)); // song3 also appears twice
+        assertTrue(topSongs.contains(song1));
+        assertTrue(topSongs.contains(song3));
     }
 
     @Test
     public void testGetMostPopularArtist() {
         Artist mostPopular = statsService.getMostPopularArtist();
-        assertEquals("Artist A", mostPopular.getName()); // 3 songs from artist1, 2 from artist2
+        assertEquals("Artist A", mostPopular.getName());
     }
 
     @Test
     public void testGetMostPopularAlbum() {
         Album mostPopular = statsService.getMostPopularAlbum();
-        assertEquals(album1, mostPopular); // album1 appears 3 times, album2 appears 2 times
+        assertEquals(album1, mostPopular);
+    }
+
+    @Test
+    public void testGetMostPlayedSongs_EmptyHistory() {
+        statsService = new StatsService(List.of());
+        List<Song> topSongs = statsService.getMostPlayedSongs(3);
+        assertNotNull(topSongs);
+        assertTrue(topSongs.isEmpty());
+    }
+
+    @Test
+    public void testGetMostPopularArtist_EmptyHistory() {
+        statsService = new StatsService(List.of());
+        Artist mostPopular = statsService.getMostPopularArtist();
+        assertNull(mostPopular);
+    }
+
+    @Test
+    public void testGetMostPopularAlbum_EmptyHistory() {
+        statsService = new StatsService(List.of());
+        Album mostPopular = statsService.getMostPopularAlbum();
+        assertNull(mostPopular);
+    }
+
+    @Test
+    public void testGetMostPlayedSongs_TopNGreaterThanDistinctSongs() {
+        List<QueueEntry> history = List.of(entry1, entry2);
+        statsService = new StatsService(history);
+
+        List<Song> topSongs = statsService.getMostPlayedSongs(3);
+        assertEquals(1, topSongs.size());
+        assertTrue(topSongs.contains(song1));
     }
 }
